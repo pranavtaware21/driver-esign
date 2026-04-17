@@ -43,6 +43,30 @@ h1 { font-size: 20px; font-weight: 700; margin: 0 0 4px; letter-spacing: -0.01em
   width: 100%; height: 60vh; min-height: 360px; max-height: 620px;
   border: 1px solid var(--line); border-radius: 10px; background: #f1f5f9;
 }
+.doc-title {
+  text-align: center;
+  font-family: 'Tiro Devanagari Hindi', 'Mukta', serif;
+  color: #1e4d7b;
+  font-size: 24px;
+  margin: 8px 0 2px;
+  font-weight: 700;
+}
+.doc-subtitle {
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+  margin: 0 0 18px;
+}
+.step-badge {
+  background: #fbe9d7;
+  border-left: 4px solid #d97236;
+  padding: 10px 14px;
+  margin: 18px 0 14px;
+  font-weight: 600;
+  color: #a24b14;
+  font-size: 14px;
+  border-radius: 0 6px 6px 0;
+}
 .agreement {
   background: #fafbfc;
   border: 1px solid var(--line);
@@ -51,6 +75,44 @@ h1 { font-size: 20px; font-weight: 700; margin: 0 0 4px; letter-spacing: -0.01em
   font-size: 15px;
   line-height: 1.75;
   color: #1e293b;
+}
+.section-title {
+  font-family: 'Tiro Devanagari Hindi', 'Mukta', serif;
+  color: #1e4d7b;
+  font-size: 17px;
+  margin: 18px 0 10px;
+  border-bottom: 2px solid #c9ddee;
+  padding-bottom: 6px;
+}
+.notice {
+  background: #f2f8fd;
+  border: 1px solid #c9ddee;
+  padding: 12px 16px;
+  margin: 12px 0;
+  border-radius: 6px;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.notice strong { color: #1e4d7b; }
+.notice p { margin: 6px 0; }
+.acknowledge {
+  background: #fff8e8;
+  border-left: 4px solid #e0a730;
+  padding: 12px 16px;
+  margin: 18px 0 0;
+  border-radius: 0 6px 6px 0;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.acknowledge p { margin: 6px 0; }
+.acknowledge strong { color: #8a5a00; }
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+@media (max-width: 500px) {
+  .two-col { grid-template-columns: 1fr; gap: 0; }
 }
 .agreement .note {
   margin: 0 0 18px;
