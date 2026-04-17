@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.2.0/dist/signature_pad.umd.min.js"></script>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -57,11 +58,12 @@
       <label for="mobile">मोबाइल नंबर</label>
       <input type="tel" id="mobile" placeholder="10 अंकों का मोबाइल नंबर" maxlength="10" inputmode="numeric" autocomplete="tel">
 
-      <label>आपका साइन</label>
-      <div class="sig-box">
-        <div class="sig-preview" id="sigPreview">&nbsp;</div>
+      <label>आपका साइन (उंगली से यहाँ हस्ताक्षर बनाएँ)</label>
+      <div class="sig-wrap">
+        <canvas id="sigCanvas"></canvas>
+        <button type="button" id="clearSig" class="clear-sig">मिटाएँ</button>
       </div>
-      <div class="hint">यह साइन आपके नाम से अपने आप बनेगा और डॉक्यूमेंट पर लगेगा।</div>
+      <div class="hint">मोबाइल पर उंगली से, कंप्यूटर पर माउस से साइन करें।</div>
 
       <label class="agree" for="agree">
         <input type="checkbox" id="agree">
