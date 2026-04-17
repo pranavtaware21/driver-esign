@@ -1,6 +1,6 @@
 // ─── CONFIG ──────────────────────────────────────────────────────────────
 // Paste your Apps Script Web App /exec URL here after deployment.
-const API_URL = 'https://script.google.com/a/macros/cityflo.com/s/AKfycbwRcUjB7LaEYMtMy__Cjx-sSbI0X7D61pnhK3c0DLQ0tghzwq3Dm6GFnFQ7s8dGpY0/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbyqpO-yFZT3aZvxluNAtIZEdZQ58wr3-CKg9H0Y0qp2c4o1SsMTepdY8pfEKq1wXsEOJg/exec';
 
 // ─── ELEMENTS ────────────────────────────────────────────────────────────
 const nameInp = document.getElementById('name');
