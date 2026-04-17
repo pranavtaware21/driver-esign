@@ -357,16 +357,3 @@ async function signPDF() {
   }
 }
 
-// ─── RESET ───────────────────────────────────────────────────────────────
-document.getElementById('againBtn').addEventListener('click', () => {
-  nameInp.value = mobInp.value = '';
-  document.getElementById('agree').checked = false;
-  errBox.textContent = '';
-  signBtn.disabled = false;
-  signBtn.textContent = 'साइन करें';
-  sigPad.clear();
-  document.getElementById('successCard').style.display = 'none';
-  document.getElementById('formCard').style.display = 'block';
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  nameInp.focus();
-});
