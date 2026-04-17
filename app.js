@@ -73,30 +73,30 @@ async function signPDF() {
     const dateStr = now.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
     const timeStr = now.toLocaleString('en-IN');
 
-    // 2. Stamp values — coordinates extracted from PDF (Letter 612×792)
-    //    Each value aligned to its label's baseline (no overlap).
-    page.drawText(dateStr, { x: 480, y: 672, size: 11, font: fontReg, color: black }); // after तारीख:
-    page.drawText(name,    { x: 155, y: 646, size: 11, font: fontReg, color: black }); // after ड्राइवर का नाम:
-    page.drawText(mobile,  { x: 155, y: 605, size: 11, font: fontReg, color: black }); // after ड्राइवर का नंबर:
+    // 2. Stamp values — coordinates calibrated from the actual rendered PDF
+    //    Letter 612×792. Each value aligns to its label baseline.
+    page.drawText(dateStr, { x: 490, y: 715, size: 11, font: fontReg, color: black }); // after तारीख:
+    page.drawText(name,    { x: 155, y: 685, size: 11, font: fontReg, color: black }); // after ड्राइवर का नाम:
+    page.drawText(mobile,  { x: 155, y: 645, size: 11, font: fontReg, color: black }); // after ड्राइवर का नंबर:
 
     // Acknowledgement — name inside "मैं, __________ (ड्राइवर का नाम)"
-    page.drawText(name, { x: 95, y: 223, size: 11, font: fontReg, color: black });
+    page.drawText(name, { x: 95, y: 452, size: 11, font: fontReg, color: black });
 
-    // 3. Drawn signature — embed PNG on the हस्ताक्षर (ड्राइवर): _____ line
+    // 3. Drawn signature — embed PNG on the हस्ताक्षर (ड्राइवर): _____ blank
     const sigPngBytes = Uint8Array.from(atob(sigPad.toDataURL('image/png').split(',')[1]), c => c.charCodeAt(0));
     const sigImg = await pdf.embedPng(sigPngBytes);
-    const sigMaxW = 125, sigMaxH = 32;
+    const sigMaxW = 140, sigMaxH = 32;
     const scaled = sigImg.scaleToFit(sigMaxW, sigMaxH);
     page.drawImage(sigImg, {
-      x: 150,
-      y: 155,           // sits on the underscore line (y=164) with slight descent
+      x: 145,
+      y: 385,           // sits on the underscore line (~y=390)
       width: scaled.width,
       height: scaled.height,
     });
 
     // 4. Audit trail — bottom of page, small & muted
     page.drawText(`${name} · ${mobile} · ${timeStr}${userIP ? ' · IP:' + userIP : ''}`, {
-      x: 72, y: 60, size: 7, font: fontReg, color: rgb(0.55, 0.55, 0.55),
+      x: 72, y: 340, size: 7, font: fontReg, color: rgb(0.55, 0.55, 0.55),
     });
 
     // 5. Serialize → base64
