@@ -43,6 +43,59 @@ h1 { font-size: 20px; font-weight: 700; margin: 0 0 4px; letter-spacing: -0.01em
   width: 100%; height: 60vh; min-height: 360px; max-height: 620px;
   border: 1px solid var(--line); border-radius: 10px; background: #f1f5f9;
 }
+.agreement {
+  background: #fafbfc;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 18px 20px;
+  font-size: 15px;
+  line-height: 1.75;
+  color: #1e293b;
+}
+.agreement .note {
+  margin: 0 0 18px;
+  padding: 12px 14px;
+  background: #fff7e6;
+  border-left: 3px solid var(--brand);
+  border-radius: 6px;
+  font-size: 14px;
+}
+.agreement .note strong { color: var(--brand-dark); }
+.agreement .rules-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0 0 10px;
+  color: var(--ink);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+}
+.agreement ol.rules {
+  padding-left: 22px;
+  margin: 0 0 18px;
+}
+.agreement ol.rules li {
+  margin-bottom: 10px;
+  padding-left: 4px;
+}
+.agreement ol.rules li::marker {
+  color: var(--brand-dark);
+  font-weight: 700;
+}
+.agreement .ack {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--line);
+}
+.agreement .ack h4 {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0 0 8px;
+  color: var(--brand-dark);
+}
+.agreement .ack p { margin: 0; font-size: 14px; }
+@media (min-width: 640px) {
+  .agreement { padding: 22px 26px; font-size: 16px; }
+}
 label {
   display: block; font-size: 14px; font-weight: 600; color: var(--ink);
   margin: 14px 0 6px;
