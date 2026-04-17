@@ -73,31 +73,30 @@ async function signPDF() {
     const dateStr = now.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
     const timeStr = now.toLocaleString('en-IN');
 
-    // 2. Stamp form values — positions tuned for the Cityflo A4 template
-    //    Values placed AFTER each Hindi label on the same line (no overlap)
-    page.drawText(dateStr, { x: 505, y: 724, size: 12, font: fontReg, color: black }); // after तारीख:
-    page.drawText(name,    { x: 160, y: 684, size: 12, font: fontReg, color: black }); // after ड्राइवर का नाम:
-    page.drawText(mobile,  { x: 170, y: 644, size: 12, font: fontReg, color: black }); // after ड्राइवर का नंबर:
+    // 2. Stamp values — coordinates extracted from PDF (Letter 612×792)
+    //    Each value aligned to its label's baseline (no overlap).
+    page.drawText(dateStr, { x: 480, y: 672, size: 11, font: fontReg, color: black }); // after तारीख:
+    page.drawText(name,    { x: 155, y: 646, size: 11, font: fontReg, color: black }); // after ड्राइवर का नाम:
+    page.drawText(mobile,  { x: 155, y: 605, size: 11, font: fontReg, color: black }); // after ड्राइवर का नंबर:
 
-    // Acknowledgement blank line — name in "मैं, _______ (ड्राइवर का नाम)"
-    page.drawText(name, { x: 95, y: 192, size: 12, font: fontReg, color: black });
+    // Acknowledgement — name inside "मैं, __________ (ड्राइवर का नाम)"
+    page.drawText(name, { x: 95, y: 223, size: 11, font: fontReg, color: black });
 
-    // 3. Embed the DRAWN signature image into the signature line
+    // 3. Drawn signature — embed PNG on the हस्ताक्षर (ड्राइवर): _____ line
     const sigPngBytes = Uint8Array.from(atob(sigPad.toDataURL('image/png').split(',')[1]), c => c.charCodeAt(0));
     const sigImg = await pdf.embedPng(sigPngBytes);
-    // target area: right of "हस्ताक्षर (ड्राइवर):" label
-    const sigMaxW = 200, sigMaxH = 45;
+    const sigMaxW = 125, sigMaxH = 32;
     const scaled = sigImg.scaleToFit(sigMaxW, sigMaxH);
     page.drawImage(sigImg, {
-      x: 170,
-      y: 80,
+      x: 150,
+      y: 155,           // sits on the underscore line (y=164) with slight descent
       width: scaled.width,
       height: scaled.height,
     });
 
-    // 4. Small audit trail (tiny, below signature line)
-    page.drawText(`${mobile} · ${timeStr}${userIP ? ' · IP:' + userIP : ''}`, {
-      x: 170, y: 68, size: 7, font: fontReg, color: rgb(0.5, 0.5, 0.5),
+    // 4. Audit trail — bottom of page, small & muted
+    page.drawText(`${name} · ${mobile} · ${timeStr}${userIP ? ' · IP:' + userIP : ''}`, {
+      x: 72, y: 60, size: 7, font: fontReg, color: rgb(0.55, 0.55, 0.55),
     });
 
     // 5. Serialize → base64
