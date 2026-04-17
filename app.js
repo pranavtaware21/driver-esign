@@ -59,6 +59,19 @@ function wrapLines(text, font, size, maxWidth) {
   return lines;
 }
 
+function wrapLinesMixed(text, measure, size, maxWidth, bold = false) {
+  const words = text.split(' ');
+  const lines = [];
+  let line = '';
+  for (const w of words) {
+    const trial = line ? line + ' ' + w : w;
+    if (measure(trial, size, bold) <= maxWidth) line = trial;
+    else { if (line) lines.push(line); line = w; }
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+
 // ─── BUILD PDF ───────────────────────────────────────────────────────────
 async function buildSignedPDF({ name, mobile, operator, bus }) {
   if (!_devReg)    _devReg    = await fetch('NotoSansDevanagari-Regular.ttf').then(r => r.arrayBuffer());
@@ -71,8 +84,46 @@ async function buildSignedPDF({ name, mobile, operator, bus }) {
 
   const fR = await pdf.embedFont(_devReg,  { subset: true });
   const fB = await pdf.embedFont(_devBold, { subset: true });
-  const fL = await pdf.embedFont(StandardFonts.Helvetica);
+  const fL  = await pdf.embedFont(StandardFonts.Helvetica);
+  const fLB = await pdf.embedFont(StandardFonts.HelveticaBold);
   const logo = await pdf.embedPng(_logoBytes);
+
+  // ── Mixed-script rendering: Devanagari runs use Noto, Latin runs use Helvetica
+  const isDev = (ch) => {
+    const c = ch.codePointAt(0);
+    return (c >= 0x0900 && c <= 0x097F) || (c >= 0xA8E0 && c <= 0xA8FF);
+  };
+  const isLetter = (ch) => /\p{L}/u.test(ch);
+  const splitRuns = (text) => {
+    const runs = [];
+    let cur = '', curDev = null;
+    for (const ch of [...text]) {
+      if (!isLetter(ch)) {
+        if (curDev === null) { cur = ch; curDev = true; } else cur += ch;
+      } else {
+        const dev = isDev(ch);
+        if (curDev === null) { cur = ch; curDev = dev; }
+        else if (dev === curDev) cur += ch;
+        else { runs.push({ t: cur, dev: curDev }); cur = ch; curDev = dev; }
+      }
+    }
+    if (cur) runs.push({ t: cur, dev: curDev === null ? true : curDev });
+    return runs;
+  };
+  const pickFont = (dev, bold) => dev ? (bold ? fB : fR) : (bold ? fLB : fL);
+  const measureMixed = (text, size, bold = false) => {
+    let w = 0;
+    for (const r of splitRuns(text)) w += pickFont(r.dev, bold).widthOfTextAtSize(r.t, size);
+    return w;
+  };
+  const drawMixed = (text, { x, y, size, bold = false, color }) => {
+    let cx = x;
+    for (const r of splitRuns(text)) {
+      const f = pickFont(r.dev, bold);
+      page.drawText(r.t, { x: cx, y, size, font: f, color });
+      cx += f.widthOfTextAtSize(r.t, size);
+    }
+  };
 
   // Palette — matches the HTML mock
   const ink      = rgb(0.10, 0.10, 0.10);
@@ -112,8 +163,8 @@ async function buildSignedPDF({ name, mobile, operator, bus }) {
   y -= titleSize + 4;
 
   const subtitle = 'Cityflo ड्राइवर नियम और ज़िम्मेदारियाँ';
-  const subW = fR.widthOfTextAtSize(subtitle, 12);
-  page.drawText(subtitle, { x: (W - subW) / 2, y, size: 12, font: fR, color: muted });
+  const subW = measureMixed(subtitle, 12);
+  drawMixed(subtitle, { x: (W - subW) / 2, y, size: 12, color: muted });
   y -= 18;
   page.drawLine({ start: {x: M, y}, end: {x: W - M, y}, thickness: 1, color: brandLt });
   y -= 22;
@@ -133,13 +184,13 @@ async function buildSignedPDF({ name, mobile, operator, bus }) {
     'अगर कोई ड्राइवर इन नियमों का पालन नहीं करता, तो Cityflo को ज़रूरी कार्रवाई करने का पूरा हक़ है।',
   ];
   const noticeLines = [];
-  for (const para of notice) noticeLines.push(...wrapLines(para, fR, 10, W - 2*M - 24), '');
+  for (const para of notice) noticeLines.push(...wrapLinesMixed(para, measureMixed, 10, W - 2*M - 24), '');
   noticeLines.pop(); // drop trailing empty
   const noticeH = noticeLines.length * 14 + 16;
   page.drawRectangle({ x: M, y: y - noticeH, width: W - 2*M, height: noticeH, color: noticeBg, borderColor: brandLt, borderWidth: 0.6 });
   let ny = y - 10;
   for (const ln of noticeLines) {
-    if (ln) page.drawText(ln, { x: M + 12, y: ny, size: 10, font: fR, color: ink });
+    if (ln) drawMixed(ln, { x: M + 12, y: ny, size: 10, color: ink });
     ny -= 14;
   }
   y -= noticeH + 14;
@@ -163,11 +214,11 @@ async function buildSignedPDF({ name, mobile, operator, bus }) {
   ];
   const ruleIndent = 26;
   rules.forEach((rule, i) => {
-    const wrapped = wrapLines(rule, fR, 10.5, W - 2*M - ruleIndent);
+    const wrapped = wrapLinesMixed(rule, measureMixed, 10.5, W - 2*M - ruleIndent);
     newPageIfNeeded(wrapped.length * 14 + 6);
-    page.drawText(`${i + 1}.`, { x: M + 2, y, size: 11, font: fB, color: brand });
+    page.drawText(`${i + 1}.`, { x: M + 2, y, size: 11, font: fLB, color: brand });
     wrapped.forEach((ln, j) => {
-      page.drawText(ln, { x: M + ruleIndent, y: y - j * 14, size: 10.5, font: fR, color: ink });
+      drawMixed(ln, { x: M + ruleIndent, y: y - j * 14, size: 10.5, color: ink });
     });
     y -= wrapped.length * 14 + 6;
   });
@@ -184,7 +235,7 @@ async function buildSignedPDF({ name, mobile, operator, bus }) {
   const ackLines = [];
   ackLines.push({ t: ackParas[0], bold: true });
   for (const p of ackParas.slice(1)) {
-    for (const ln of wrapLines(p, fR, 10, W - 2*M - 24)) ackLines.push({ t: ln });
+    for (const ln of wrapLinesMixed(p, measureMixed, 10, W - 2*M - 24)) ackLines.push({ t: ln });
     ackLines.push({ t: '' });
   }
   ackLines.pop();
@@ -193,7 +244,7 @@ async function buildSignedPDF({ name, mobile, operator, bus }) {
   page.drawRectangle({ x: M, y: y - ackH, width: 4, height: ackH, color: ackAcc });
   let ay = y - 10;
   for (const l of ackLines) {
-    if (l.t) page.drawText(l.t, { x: M + 14, y: ay, size: l.bold ? 11 : 10, font: l.bold ? fB : fR, color: l.bold ? rgb(0.54, 0.35, 0) : ink });
+    if (l.t) drawMixed(l.t, { x: M + 14, y: ay, size: l.bold ? 11 : 10, bold: !!l.bold, color: l.bold ? rgb(0.54, 0.35, 0) : ink });
     ay -= 14;
   }
   y -= ackH + 24;
@@ -204,7 +255,8 @@ async function buildSignedPDF({ name, mobile, operator, bus }) {
 
   // Signature box with fields
   const now = new Date();
-  const dateStr = now.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+  const hindiMonths = ['जनवरी','फ़रवरी','मार्च','अप्रैल','मई','जून','जुलाई','अगस्त','सितंबर','अक्टूबर','नवंबर','दिसंबर'];
+  const dateStr = `${String(now.getDate()).padStart(2,'0')} ${hindiMonths[now.getMonth()]} ${now.getFullYear()}`;
 
   const boxTop = y;
   const pad = 14;
@@ -213,8 +265,8 @@ async function buildSignedPDF({ name, mobile, operator, bus }) {
   const drawField = (col, row, label, value) => {
     const fx = M + pad + col * (colW + 24);
     const fy = boxTop - 20 - row * 52;
-    page.drawText(label, { x: fx, y: fy, size: 9.5, font: fB, color: brand });
-    if (value) page.drawText(value, { x: fx, y: fy - 16, size: 11, font: fR, color: ink });
+    drawMixed(label, { x: fx, y: fy, size: 9.5, bold: true, color: brand });
+    if (value) drawMixed(value, { x: fx, y: fy - 16, size: 11, color: ink });
     page.drawLine({ start: {x: fx, y: fy - 22}, end: {x: fx + colW, y: fy - 22}, thickness: 0.8, color: ink });
   };
 
@@ -231,7 +283,7 @@ async function buildSignedPDF({ name, mobile, operator, bus }) {
   // Signature field (column 1, row 2) — taller blank line + embedded drawn signature
   const sfx = M + pad + 1 * (colW + 24);
   const sfy = boxTop - 20 - 2 * 52;
-  page.drawText('ड्राइवर के हस्ताक्षर / अंगूठा', { x: sfx, y: sfy, size: 9.5, font: fB, color: brand });
+  drawMixed('ड्राइवर के हस्ताक्षर / अंगूठा', { x: sfx, y: sfy, size: 9.5, bold: true, color: brand });
   const sigBoxX = sfx, sigBoxY = sfy - 62, sigBoxW = colW, sigBoxH = 55;
 
   // Draw signature image centered
@@ -252,12 +304,12 @@ async function buildSignedPDF({ name, mobile, operator, bus }) {
   page.drawLine({ start: {x: M, y}, end: {x: W - M, y}, thickness: 0.3, color: gray });
   y -= 12;
   const audit = `ई-हस्ताक्षर • ${name} • ${mobile}${operator ? ' • ऑपरेटर: ' + operator : ''}${bus ? ' • बस: ' + bus : ''} • ${now.toLocaleString('en-IN')}${userIP ? ' • IP: ' + userIP : ''}`;
-  for (const ln of wrapLines(audit, fR, 8.5, W - 2*M)) {
-    page.drawText(ln, { x: M, y, size: 8.5, font: fR, color: muted });
+  for (const ln of wrapLinesMixed(audit, measureMixed, 8.5, W - 2*M)) {
+    drawMixed(ln, { x: M, y, size: 8.5, color: muted });
     y -= 12;
   }
   y -= 4;
-  page.drawText('यह एक इलेक्ट्रॉनिक रूप से साइन किया गया दस्तावेज़ है (Information Technology Act 2000 के अंतर्गत मान्य)।', { x: M, y, size: 8, font: fR, color: muted });
+  drawMixed('यह एक इलेक्ट्रॉनिक रूप से साइन किया गया दस्तावेज़ है (Information Technology Act 2000 के अंतर्गत मान्य)।', { x: M, y, size: 8, color: muted });
   y -= 11;
   page.drawText('Generated by Cityflo Driver E-Sign · cityflo.com', { x: M, y, size: 8, font: fL, color: muted });
 
