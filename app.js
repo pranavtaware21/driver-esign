@@ -4,8 +4,6 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbyqpO-yFZT3aZvxluNAtIZE
 // ─── ELEMENTS ────────────────────────────────────────────────────────────
 const nameInp = document.getElementById('name');
 const mobInp  = document.getElementById('mobile');
-const opInp   = document.getElementById('operator');
-const busInp  = document.getElementById('bus');
 const errBox  = document.getElementById('err');
 const signBtn = document.getElementById('signBtn');
 const canvas  = document.getElementById('sigCanvas');
@@ -73,7 +71,7 @@ function wrapLinesMixed(text, measure, size, maxWidth, bold = false) {
 }
 
 // ─── BUILD PDF ───────────────────────────────────────────────────────────
-async function buildSignedPDF({ name, mobile, operator, bus }) {
+async function buildSignedPDF({ name, mobile }) {
   if (!_devReg)    _devReg    = await fetch('NotoSansDevanagari-Regular.ttf').then(r => r.arrayBuffer());
   if (!_devBold)   _devBold   = await fetch('NotoSansDevanagari-Bold.ttf').then(r => r.arrayBuffer());
   if (!_logoBytes) _logoBytes = await fetch('logo.png').then(r => r.arrayBuffer());
@@ -270,19 +268,17 @@ async function buildSignedPDF({ name, mobile, operator, bus }) {
     page.drawLine({ start: {x: fx, y: fy - 22}, end: {x: fx + colW, y: fy - 22}, thickness: 0.8, color: ink });
   };
 
-  const rows = 3;
+  const rows = 2;
   const boxH = 20 + rows * 52 + 90; // signature row is taller
   page.drawRectangle({ x: M, y: boxTop - boxH, width: W - 2*M, height: boxH, color: rgb(0.98, 0.99, 1), borderColor: brandLt, borderWidth: 0.6 });
 
   drawField(0, 0, 'ड्राइवर का नाम',        name);
   drawField(1, 0, 'ड्राइवर ID / फ़ोन नंबर', mobile);
-  drawField(0, 1, 'ऑपरेटर का नाम',         operator || '—');
-  drawField(1, 1, 'बस नंबर',               bus || '—');
-  drawField(0, 2, 'तारीख़',                 dateStr);
+  drawField(0, 1, 'तारीख़',                 dateStr);
 
-  // Signature field (column 1, row 2) — taller blank line + embedded drawn signature
+  // Signature field (column 1, row 1) — taller blank line + embedded drawn signature
   const sfx = M + pad + 1 * (colW + 24);
-  const sfy = boxTop - 20 - 2 * 52;
+  const sfy = boxTop - 20 - 1 * 52;
   drawMixed('ड्राइवर के हस्ताक्षर / अंगूठा', { x: sfx, y: sfy, size: 9.5, bold: true, color: brand });
   const sigBoxX = sfx, sigBoxY = sfy - 62, sigBoxW = colW, sigBoxH = 55;
 
@@ -304,7 +300,7 @@ async function buildSignedPDF({ name, mobile, operator, bus }) {
   page.drawLine({ start: {x: M, y}, end: {x: W - M, y}, thickness: 0.3, color: gray });
   y -= 12;
   const sep = '  |  ';
-  const audit = `ई-हस्ताक्षर${sep}${name}${sep}${mobile}${operator ? sep + 'ऑपरेटर: ' + operator : ''}${bus ? sep + 'बस: ' + bus : ''}${sep}${now.toLocaleString('en-IN')}${userIP ? sep + 'IP: ' + userIP : ''}`;
+  const audit = `ई-हस्ताक्षर${sep}${name}${sep}${mobile}${sep}${now.toLocaleString('en-IN')}${userIP ? sep + 'IP: ' + userIP : ''}`;
   for (const ln of wrapLinesMixed(audit, measureMixed, 8.5, W - 2*M)) {
     drawMixed(ln, { x: M, y, size: 8.5, color: muted });
     y -= 12;
@@ -322,11 +318,9 @@ signBtn.addEventListener('click', signPDF);
 
 async function signPDF() {
   errBox.textContent = '';
-  const name     = nameInp.value.trim();
-  const mobile   = mobInp.value.trim();
-  const operator = opInp.value.trim();
-  const bus      = busInp.value.trim();
-  const agreed   = document.getElementById('agree').checked;
+  const name   = nameInp.value.trim();
+  const mobile = mobInp.value.trim();
+  const agreed = document.getElementById('agree').checked;
 
   if (!name)                    return errBox.textContent = 'कृपया अपना पूरा नाम लिखें।';
   if (!/^\d{10}$/.test(mobile)) return errBox.textContent = '10 अंकों का सही मोबाइल नंबर डालें।';
@@ -337,7 +331,7 @@ async function signPDF() {
   signBtn.textContent = 'साइन हो रहा है…';
 
   try {
-    const out = await buildSignedPDF({ name, mobile, operator, bus });
+    const out = await buildSignedPDF({ name, mobile });
     let bin = ''; const chunk = 0x8000;
     for (let i = 0; i < out.length; i += chunk) bin += String.fromCharCode.apply(null, out.subarray(i, i + chunk));
     const base64 = btoa(bin);
@@ -345,7 +339,7 @@ async function signPDF() {
     const res = await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ base64, name, mobile, operator, bus, ip: userIP }),
+      body: JSON.stringify({ base64, name, mobile, ip: userIP }),
     });
     const data = await res.json();
     if (!data.ok) throw new Error(data.error || 'Unknown error');
@@ -365,7 +359,7 @@ async function signPDF() {
 
 // ─── RESET ───────────────────────────────────────────────────────────────
 document.getElementById('againBtn').addEventListener('click', () => {
-  nameInp.value = mobInp.value = opInp.value = busInp.value = '';
+  nameInp.value = mobInp.value = '';
   document.getElementById('agree').checked = false;
   errBox.textContent = '';
   signBtn.disabled = false;
