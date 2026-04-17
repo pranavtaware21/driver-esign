@@ -170,12 +170,11 @@ button:disabled { background: #cbd5e1; color: #64748b; cursor: not-allowed; }
   border-radius: 10px; font-weight: 600;
 }
 button.secondary {
-  background: transparent; color: var(--ok);
-  border: 1.5px solid var(--ok);
-  margin-top: 16px; width: auto; padding: 10px 20px;
-  display: inline-block;
+  background: var(--ok); color: #fff; border: none;
+  margin-top: 12px; width: auto; padding: 12px 22px;
+  display: inline-block; font-weight: 600;
 }
-button.secondary:hover:not(:disabled) { background: var(--ok-bg); }
+button.secondary:hover:not(:disabled) { background: #15803d; }
 .check { font-size: 48px; line-height: 1; margin-bottom: 8px; }
 footer { text-align: center; color: var(--muted); font-size: 12px; padding: 16px 0 24px; }
 
