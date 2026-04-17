@@ -303,7 +303,8 @@ async function buildSignedPDF({ name, mobile, operator, bus }) {
   newPageIfNeeded(60);
   page.drawLine({ start: {x: M, y}, end: {x: W - M, y}, thickness: 0.3, color: gray });
   y -= 12;
-  const audit = `ई-हस्ताक्षर • ${name} • ${mobile}${operator ? ' • ऑपरेटर: ' + operator : ''}${bus ? ' • बस: ' + bus : ''} • ${now.toLocaleString('en-IN')}${userIP ? ' • IP: ' + userIP : ''}`;
+  const sep = '  |  ';
+  const audit = `ई-हस्ताक्षर${sep}${name}${sep}${mobile}${operator ? sep + 'ऑपरेटर: ' + operator : ''}${bus ? sep + 'बस: ' + bus : ''}${sep}${now.toLocaleString('en-IN')}${userIP ? sep + 'IP: ' + userIP : ''}`;
   for (const ln of wrapLinesMixed(audit, measureMixed, 8.5, W - 2*M)) {
     drawMixed(ln, { x: M, y, size: 8.5, color: muted });
     y -= 12;
