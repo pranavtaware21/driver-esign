@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Cityflo ड्राइवर एग्रीमेंट</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <img src="logo.png" alt="Cityflo" class="logo">
+      <span class="tag">ड्राइवर एग्रीमेंट</span>
+    </header>
+
+    <div class="card" id="formCard">
+      <h1>ड्राइवर नियम और जुर्माना</h1>
+      <p class="subtitle">कृपया नीचे दिया गया एग्रीमेंट ध्यान से पढ़ें, अपनी जानकारी भरें और साइन करें।</p>
+
+      <div class="step-label">स्टेप 1 · एग्रीमेंट पढ़ें</div>
+      <iframe class="pdf-frame" src="agreement.pdf#toolbar=0"></iframe>
+
+      <div class="step-label mt">स्टेप 2 · जानकारी भरें और साइन करें</div>
+
+      <label for="name">पूरा नाम (आधार के अनुसार)</label>
+      <input type="text" id="name" placeholder="जैसे: Ramesh Kumar" autocomplete="name">
+
+      <label for="mobile">मोबाइल नंबर</label>
+      <input type="tel" id="mobile" placeholder="10 अंकों का मोबाइल नंबर" maxlength="10" inputmode="numeric" autocomplete="tel">
+
+      <label>आपका साइन</label>
+      <div class="sig-box">
+        <div class="sig-preview" id="sigPreview">&nbsp;</div>
+      </div>
+      <div class="hint">यह साइन आपके नाम से अपने आप बनेगा और डॉक्यूमेंट पर लगेगा।</div>
+
+      <label class="agree" for="agree">
+        <input type="checkbox" id="agree">
+        <span>मैंने ऊपर दिया गया एग्रीमेंट पढ़ लिया है और अच्छी तरह समझ लिया है। मैं सभी नियमों से सहमत हूँ और इस डॉक्यूमेंट पर इलेक्ट्रॉनिक तरीके से साइन करने की सहमति देता/देती हूँ।</span>
+      </label>
+
+      <button id="signBtn">साइन करें</button>
+      <div class="err" id="err"></div>
+    </div>
+
+    <div class="card success" id="successCard" style="display:none;">
+      <div class="check">✓</div>
+      <h2>साइन सफल हुआ</h2>
+      <p id="successName">आपका साइन किया हुआ एग्रीमेंट Cityflo के पास सुरक्षित हो गया है।</p>
+      <a id="dlLink" target="_blank" rel="noopener">साइन की गई कॉपी डाउनलोड करें</a>
+      <button id="againBtn" class="secondary">एक और ड्राइवर का साइन लें</button>
+    </div>
+
+    <footer>Powered by Cityflo · © 2026</footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

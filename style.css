@@ -1,0 +1,123 @@
+:root {
+  --brand: #f7a81b;
+  --brand-dark: #e69400;
+  --ink: #0f172a;
+  --muted: #64748b;
+  --line: #e2e8f0;
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --ok: #16a34a;
+  --ok-bg: #ecfdf5;
+  --err: #dc2626;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: 'Noto Sans Devanagari', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 760px; margin: 0 auto; padding: 16px; }
+header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 4px 16px;
+}
+.logo { height: 30px; width: auto; }
+.tag { font-size: 12px; color: var(--muted); font-weight: 500; }
+.card {
+  background: var(--card); border-radius: 14px; padding: 18px;
+  box-shadow: 0 1px 3px rgba(15,23,42,.06), 0 1px 2px rgba(15,23,42,.04);
+  margin-bottom: 14px;
+}
+h1 { font-size: 20px; font-weight: 700; margin: 0 0 4px; letter-spacing: -0.01em; }
+.subtitle { color: var(--muted); font-size: 14px; margin: 0 0 14px; }
+.step-label {
+  font-size: 12px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--brand-dark); margin-bottom: 8px;
+}
+.step-label.mt { margin-top: 22px; }
+.pdf-frame {
+  width: 100%; height: 60vh; min-height: 360px; max-height: 620px;
+  border: 1px solid var(--line); border-radius: 10px; background: #f1f5f9;
+}
+label {
+  display: block; font-size: 14px; font-weight: 600; color: var(--ink);
+  margin: 14px 0 6px;
+}
+input[type=text], input[type=tel] {
+  width: 100%; padding: 12px 14px; font-size: 16px; font-family: inherit;
+  color: var(--ink); background: #fff;
+  border: 1.5px solid var(--line); border-radius: 10px;
+  transition: border-color .15s, box-shadow .15s;
+}
+input[type=text]:focus, input[type=tel]:focus {
+  outline: none; border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgba(247,168,27,.18);
+}
+.sig-box {
+  margin-top: 6px; padding: 14px 16px 6px;
+  background: #fffdf5; border: 1.5px dashed var(--brand);
+  border-radius: 10px; min-height: 74px;
+  display: flex; align-items: center;
+}
+.sig-preview {
+  font-family: 'Great Vibes', cursive; font-size: 40px; line-height: 1.1;
+  color: #0b3a8a; word-break: break-word; width: 100%;
+}
+.hint { font-size: 13px; color: var(--muted); margin-top: 6px; }
+.agree {
+  display: flex; align-items: flex-start; gap: 10px;
+  margin: 18px 0 6px; font-size: 14px; line-height: 1.55; cursor: pointer;
+  font-weight: 400;
+}
+.agree input { margin-top: 3px; width: 18px; height: 18px; accent-color: var(--brand); flex-shrink: 0; }
+button {
+  width: 100%; padding: 15px; font-size: 16px; font-weight: 600; font-family: inherit;
+  background: var(--brand); color: #1a1a1a; border: none; border-radius: 12px;
+  cursor: pointer; margin-top: 14px;
+  transition: background .15s, transform .05s;
+}
+button:hover:not(:disabled) { background: var(--brand-dark); }
+button:active:not(:disabled) { transform: scale(0.99); }
+button:disabled { background: #cbd5e1; color: #64748b; cursor: not-allowed; }
+.err { color: var(--err); font-size: 14px; font-weight: 500; margin-top: 10px; min-height: 20px; }
+.success {
+  background: var(--ok-bg); border: 1px solid #86efac;
+  text-align: center; padding: 28px 20px;
+}
+.success h2 { margin: 0 0 8px; color: var(--ok); font-size: 22px; }
+.success p { margin: 0 0 18px; color: #047857; }
+.success a {
+  display: inline-block; padding: 12px 22px;
+  background: var(--ok); color: #fff; text-decoration: none;
+  border-radius: 10px; font-weight: 600;
+}
+button.secondary {
+  background: transparent; color: var(--ok);
+  border: 1.5px solid var(--ok);
+  margin-top: 16px; width: auto; padding: 10px 20px;
+  display: inline-block;
+}
+button.secondary:hover:not(:disabled) { background: var(--ok-bg); }
+.check { font-size: 48px; line-height: 1; margin-bottom: 8px; }
+footer { text-align: center; color: var(--muted); font-size: 12px; padding: 16px 0 24px; }
+
+@media (min-width: 640px) {
+  .wrap { padding: 24px; }
+  .card { padding: 24px; }
+  h1 { font-size: 24px; }
+  .pdf-frame { height: 70vh; max-height: 720px; }
+  .sig-preview { font-size: 48px; }
+}
+@media (min-width: 1024px) {
+  .wrap { padding: 32px 24px; }
+}
+@media (max-width: 360px) {
+  .card { padding: 14px; }
+  .pdf-frame { height: 50vh; min-height: 300px; }
+  .sig-preview { font-size: 34px; }
+  button { padding: 13px; }
+}
