@@ -136,6 +136,20 @@ async function buildSignedPDF({ name, mobile }) {
   const ackAcc   = rgb(0.878, 0.655, 0.188);   // #e0a730
   const white    = rgb(1, 1, 1);
   const gray     = rgb(0.8, 0.8, 0.8);
+  // Green (Salary section)
+  const goodBg   = rgb(0.863, 0.988, 0.906);   // #dcfce7
+  const goodAcc  = rgb(0.086, 0.639, 0.290);   // #16a34a
+  const goodTxt  = rgb(0.086, 0.396, 0.204);   // #166534
+  const goodCard = rgb(0.941, 0.992, 0.957);   // #f0fdf4
+  const goodBorder = rgb(0.733, 0.969, 0.816); // #bbf7d0
+  // Orange (Penalty section)
+  const warnBg   = rgb(1.000, 0.929, 0.835);   // #ffedd5
+  const warnAcc  = rgb(0.918, 0.345, 0.047);   // #ea580c
+  const warnTxt  = rgb(0.604, 0.204, 0.071);   // #9a3412
+  const warnSect = rgb(1.000, 0.969, 0.929);   // #fff7ed
+  const warnBorder = rgb(0.996, 0.843, 0.667); // #fed7aa
+  const severeBg = rgb(0.996, 0.886, 0.886);   // #fee2e2
+  const severeTxt = rgb(0.725, 0.110, 0.110);  // #b91c1c
 
   const PG = [612, 842];  // A4-ish width Letter tall — more room
   const W = PG[0], H = PG[1], M = 50;
@@ -167,14 +181,182 @@ async function buildSignedPDF({ name, mobile }) {
   page.drawLine({ start: {x: M, y}, end: {x: W - M, y}, thickness: 1, color: brandLt });
   y -= 22;
 
-  // ── Step 1 badge ──────────────────────────────────────────────────────
-  const drawStepBadge = (text) => {
-    page.drawRectangle({ x: M, y: y - 8, width: W - 2*M, height: 22, color: stepBg });
-    page.drawRectangle({ x: M, y: y - 8, width: 4, height: 22, color: stepAcc });
-    page.drawText(text, { x: M + 12, y: y - 2, size: 11, font: fB, color: stepTxt });
+  // ── Step badge (themeable) ────────────────────────────────────────────
+  const drawStepBadge = (text, theme = 'orange') => {
+    const t = theme === 'green'  ? { bg: goodBg, acc: goodAcc, txt: goodTxt }
+            : theme === 'warn'   ? { bg: warnBg, acc: warnAcc, txt: warnTxt }
+            :                      { bg: stepBg, acc: stepAcc, txt: stepTxt };
+    newPageIfNeeded(40);
+    page.drawRectangle({ x: M, y: y - 8, width: W - 2*M, height: 22, color: t.bg });
+    page.drawRectangle({ x: M, y: y - 8, width: 4, height: 22, color: t.acc });
+    drawMixed(text, { x: M + 12, y: y - 2, size: 11, bold: true, color: t.txt });
     y -= 30;
   };
-  drawStepBadge('स्टेप 1 : एग्रीमेंट ध्यान से पढ़ें');
+
+  // ── Helper: paragraph ─────────────────────────────────────────────────
+  const drawParagraph = (text, { size = 10, color = ink, lineH = 14, leftPad = 0, rightPad = 0, bold = false } = {}) => {
+    const maxW = W - 2*M - leftPad - rightPad;
+    const lines = wrapLinesMixed(text, measureMixed, size, maxW, bold);
+    newPageIfNeeded(lines.length * lineH + 4);
+    for (const ln of lines) {
+      drawMixed(ln, { x: M + leftPad, y, size, bold, color });
+      y -= lineH;
+    }
+  };
+
+  // ── Helper: bullet list (•) ───────────────────────────────────────────
+  const drawBulletList = (items, { size = 10, color = ink, lineH = 14, leftPad = 16, accent = brand } = {}) => {
+    for (const it of items) {
+      const lines = wrapLinesMixed(it, measureMixed, size, W - 2*M - leftPad - 12);
+      newPageIfNeeded(lines.length * lineH + 4);
+      // dot
+      page.drawCircle({ x: M + leftPad - 8, y: y + 3, size: 1.6, color: accent });
+      lines.forEach((ln, j) => {
+        drawMixed(ln, { x: M + leftPad, y: y - j * lineH, size, color });
+      });
+      y -= lines.length * lineH + 2;
+    }
+  };
+
+  // ── Helper: card box with header + bullets ────────────────────────────
+  const drawCard = (header, items, { headerColor = goodTxt, accent = goodAcc, bg = white, border = goodBorder } = {}) => {
+    const padX = 12, padTop = 10, padBot = 10, headerSize = 11, itemSize = 10, lineH = 14;
+    // Pre-measure
+    const headerLines = wrapLinesMixed(header, measureMixed, headerSize, W - 2*M - 2*padX, true);
+    let bodyH = 0;
+    const itemWraps = items.map(it => {
+      const ws = wrapLinesMixed(it, measureMixed, itemSize, W - 2*M - 2*padX - 14);
+      bodyH += ws.length * lineH + 2;
+      return ws;
+    });
+    const cardH = padTop + headerLines.length * (headerSize + 4) + 6 + bodyH + padBot;
+    newPageIfNeeded(cardH + 8);
+    page.drawRectangle({ x: M, y: y - cardH, width: W - 2*M, height: cardH, color: bg, borderColor: border, borderWidth: 0.6 });
+    page.drawRectangle({ x: M, y: y - cardH, width: 4, height: cardH, color: accent });
+    let cy = y - padTop - headerSize + 2;
+    for (const hl of headerLines) {
+      drawMixed(hl, { x: M + padX, y: cy, size: headerSize, bold: true, color: headerColor });
+      cy -= headerSize + 4;
+    }
+    cy -= 4;
+    for (const ws of itemWraps) {
+      page.drawCircle({ x: M + padX + 4, y: cy + 3, size: 1.6, color: accent });
+      ws.forEach((ln, j) => drawMixed(ln, { x: M + padX + 14, y: cy - j * lineH, size: itemSize, color: ink }));
+      cy -= ws.length * lineH + 2;
+    }
+    y -= cardH + 10;
+  };
+
+  // ── Helper: penalty table ─────────────────────────────────────────────
+  const drawTable = (headers, rows, colWidths) => {
+    const padX = 8, padY = 6, headerH = 22, rowMinH = 22;
+    const fontSize = 9, lineH = 12;
+    // Phase header was drawn before; this just draws the table
+    const tableW = colWidths.reduce((a, b) => a + b, 0);
+    const startX = M;
+
+    // Header row
+    newPageIfNeeded(headerH + rowMinH);
+    page.drawRectangle({ x: startX, y: y - headerH, width: tableW, height: headerH, color: warnBg, borderColor: warnBorder, borderWidth: 0.5 });
+    let cx = startX;
+    for (let i = 0; i < headers.length; i++) {
+      drawMixed(headers[i], { x: cx + padX, y: y - headerH + padY + 2, size: fontSize + 0.5, bold: true, color: warnTxt });
+      cx += colWidths[i];
+    }
+    y -= headerH;
+
+    // Body rows
+    rows.forEach((row, ri) => {
+      // Pre-measure each cell
+      const cellLines = row.map((cell, i) => wrapLinesMixed(String(cell.text ?? cell), measureMixed, fontSize, colWidths[i] - 2*padX));
+      const rowH = Math.max(rowMinH, padY * 2 + Math.max(...cellLines.map(l => l.length)) * lineH);
+      newPageIfNeeded(rowH + 4);
+      const altBg = (ri % 2 === 1) ? warnSect : white;
+      page.drawRectangle({ x: startX, y: y - rowH, width: tableW, height: rowH, color: altBg, borderColor: warnBorder, borderWidth: 0.4 });
+      let cx2 = startX;
+      for (let i = 0; i < row.length; i++) {
+        const cell = row[i];
+        const isAmt = cell && (cell.amt || cell.severe);
+        const isSevere = cell && cell.severe;
+        const lines = cellLines[i];
+        // For severe amount, draw colored bg behind text
+        if (isSevere) {
+          page.drawRectangle({ x: cx2 + 4, y: y - rowH + 4, width: colWidths[i] - 8, height: rowH - 8, color: severeBg });
+        }
+        const txtColor = isSevere ? severeTxt : (isAmt ? rgb(0.760, 0.255, 0.047) : ink);
+        const tLeft = cx2 + padX;
+        lines.forEach((ln, j) => {
+          if (isAmt) {
+            // right-align (or center for severe)
+            const w = measureMixed(ln, fontSize, isAmt);
+            const x = isSevere ? cx2 + (colWidths[i] - w) / 2 : cx2 + colWidths[i] - padX - w;
+            drawMixed(ln, { x, y: y - padY - (j+1) * lineH + 4, size: fontSize, bold: true, color: txtColor });
+          } else {
+            drawMixed(ln, { x: tLeft, y: y - padY - (j+1) * lineH + 4, size: fontSize, color: txtColor });
+          }
+        });
+        cx2 += colWidths[i];
+      }
+      y -= rowH;
+    });
+    y -= 10;
+  };
+
+  // ════════════════════════════════════════════════════════════════════
+  // ── STEP 1 : SALARY INCREMENT (खुशखबरी) ──────────────────────────────
+  // ════════════════════════════════════════════════════════════════════
+  drawStepBadge('स्टेप 1 : खुशखबरी — वेतन वृद्धि (Salary Increment)', 'green');
+
+  drawParagraph('Cityflo Mumbai परिवार के प्यारे ड्राइवर साथियों,', { size: 11, bold: true, color: goodTxt, lineH: 16 });
+  y -= 4;
+  drawParagraph('आप सब हमारे लिए बहुत खास हैं। रोज़ सुबह समय पर निकलना, यात्रियों को सुरक्षित और आराम से उनकी मंज़िल तक पहुंचाना, यह आपकी मेहनत और लगन का नतीजा है। आज Cityflo जहाँ है, वहाँ आपकी वजह से है।', { size: 10, lineH: 14 });
+  y -= 4;
+  drawParagraph('आप सिर्फ बस नहीं चलाते, आप हर दिन हज़ारों लोगों की ज़िंदगी आसान बनाते हैं। आपकी यह मेहनत हमारे लिए बहुत कीमती है।', { size: 10, lineH: 14 });
+  y -= 4;
+  drawParagraph('इसी वजह से Cityflo ने आपके लिए एक खास फैसला लिया है।', { size: 10, lineH: 14 });
+  y -= 8;
+
+  drawCard('1. बेस सैलरी में बढ़ोतरी : ₹1,000', [
+    'यह बढ़ोतरी सभी ड्राइवर साथियों को मिलेगी।',
+    'अप्रैल 2026 की सैलरी से लागू होगी।',
+  ]);
+
+  drawCard('2. लॉयल्टी वेतन बढ़ोतरी : ₹1,000', [
+    'Cityflo के साथ एक पूरा साल काम करने पर ₹1,000 की बढ़ोतरी मिलेगी।',
+    'शर्त केवल एक है : उस साल में छुट्टियाँ 18 दिन से कम होनी चाहिए।',
+    'अगर छुट्टियाँ 18 दिन से ज़्यादा हो गईं, तो उस साल की ₹1,000 बढ़ोतरी नहीं मिलेगी और सैलरी वहीं रहेगी जहाँ थी। सैलरी बेस से शुरू नहीं होगी, पिछली सैलरी पर ही काम जारी रहेगा।',
+    'फिर अगली ₹1,000 बढ़ोतरी के लिए एक और पूरा साल काम करना होगा, और उस साल 18 दिन से कम छुट्टी रखनी होगी।',
+  ]);
+
+  drawCard('उदाहरण से समझिए (तीन साल का हिसाब)', [
+    'पहला साल (अप्रैल 2026) : बेस सैलरी + ₹1,000 (नई बढ़ोतरी)',
+    'दूसरा साल (अप्रैल 2027) : पिछले साल की सैलरी + ₹1,000 लॉयल्टी बढ़ोतरी',
+    'तीसरा साल (अप्रैल 2028) : पिछले साल की सैलरी + ₹1,000 लॉयल्टी बढ़ोतरी',
+  ], { bg: goodCard, border: goodAcc });
+
+  drawCard('3. नए ड्राइवर साथियों के लिए', [
+    'शुरुआत बेस सैलरी से होगी।',
+    'एक पूरा साल काम करने पर ऊपर बताई गई शर्त के साथ ₹1,000 की लॉयल्टी बढ़ोतरी मिलेगी।',
+  ]);
+
+  // Note box (amber)
+  const noteText = 'नोट : इस वेतन बढ़ोतरी के साथ अब आपकी ज़िम्मेदारी भी बढ़ेगी। सिटीफ्लो अपने ग्राहकों को दी जाने वाली सेवाओं में लगातार सुधार कर रहा है। सिटीफ्लो के ड्राइवर के रूप में आप हमारी सफलता में महत्वपूर्ण भूमिका निभाते रहेंगे। हम अपने ड्राइवरों से अपेक्षा करते हैं कि वे भरोसेमंद और बेहद सुरक्षित सेवा बनाए रखें। सिटीफ्लो के ड्राइवरों से अपेक्षित दिशानिर्देशों का सख्ती से पालन करने की उम्मीद है।';
+  const noteWrap = wrapLinesMixed(noteText, measureMixed, 10, W - 2*M - 24);
+  const noteBoxH = noteWrap.length * 14 + 16;
+  newPageIfNeeded(noteBoxH + 8);
+  page.drawRectangle({ x: M, y: y - noteBoxH, width: W - 2*M, height: noteBoxH, color: ackBg });
+  page.drawRectangle({ x: M, y: y - noteBoxH, width: 4, height: noteBoxH, color: ackAcc });
+  let nty = y - 12;
+  for (const ln of noteWrap) {
+    drawMixed(ln, { x: M + 14, y: nty, size: 10, color: ink });
+    nty -= 14;
+  }
+  y -= noteBoxH + 18;
+
+  // ════════════════════════════════════════════════════════════════════
+  // ── STEP 2 : AGREEMENT (existing) ────────────────────────────────────
+  // ════════════════════════════════════════════════════════════════════
+  drawStepBadge('स्टेप 2 : एग्रीमेंट ध्यान से पढ़ें');
 
   // ── Notice box ────────────────────────────────────────────────────────
   const notice = [
@@ -227,6 +409,7 @@ async function buildSignedPDF({ name, mobile }) {
   newPageIfNeeded(100);
   const ackParas = [
     'स्वीकारोक्ति (Acknowledgement)',
+    'मैंने Cityflo की वेतन वृद्धि की जानकारी, ड्राइवर की ज़िम्मेदारियाँ, और नियम उल्लंघन पर लगने वाले जुर्माने — तीनों बातें ध्यान से पढ़ी और समझी हैं।',
     'मुझे पता है कि नियम तोड़ने पर तय किया गया जुर्माना मेरी सैलरी से काट लिया जाएगा। अगर मामला गंभीर हो, तो मेरी सेवा भी समाप्त की जा सकती है।',
     'मैं अपनी मर्ज़ी से, बिना किसी दबाव के, इन सभी नियमों का पालन करने का वचन देता हूँ।',
   ];
@@ -247,9 +430,75 @@ async function buildSignedPDF({ name, mobile }) {
   }
   y -= ackH + 24;
 
-  // ── Step 2 + signature block ─────────────────────────────────────────
+  // ════════════════════════════════════════════════════════════════════
+  // ── STEP 3 : DRIVER VIOLATIONS AND PENALTIES ─────────────────────────
+  // ════════════════════════════════════════════════════════════════════
+  drawStepBadge('स्टेप 3 : Driver Violations and Penalties (नियम उल्लंघन और जुर्माना)', 'warn');
+
+  drawParagraph('Cityflo में हम अपने यात्रियों को एक सुरक्षित, समय पर चलने वाला और अच्छा सफर देना चाहते हैं। इसके लिए ज़रूरी है कि हर ड्राइवर तय किए गए नियमों का पालन करे।', { size: 10 });
+  y -= 4;
+  drawParagraph('नीचे दी गई सूची में वे नियम और उन पर लगने वाले जुर्माने बताए गए हैं। ये नियम यात्रा शुरू होने से पहले से लेकर यात्रा खत्म होने तक, हर चरण पर लागू होते हैं।', { size: 10 });
+  y -= 12;
+
+  // Phase title helper
+  const drawPhaseTitle = (num, text) => {
+    newPageIfNeeded(28);
+    page.drawRectangle({ x: M, y: y - 18, width: 22, height: 22, color: warnAcc });
+    const numW = fLB.widthOfTextAtSize(String(num), 12);
+    page.drawText(String(num), { x: M + (22 - numW) / 2, y: y - 12, size: 12, font: fLB, color: white });
+    drawMixed(text, { x: M + 30, y: y - 12, size: 12, bold: true, color: warnTxt });
+    y -= 28;
+  };
+
+  // Column widths for tables: उल्लंघन | नियम | जुर्माना
+  const tCols = [140, 280, 92];
+
+  drawPhaseTitle(1, 'यात्रा शुरू करने से पहले की तैयारी | Readiness Before Trip');
+  drawTable(['उल्लंघन', 'नियम / अपेक्षा', 'जुर्माना (₹)'], [
+    ['बस समय पर तैयार न होना', 'बस तय किए गए समय से पहले पूरी तरह तैयार होनी चाहिए।', { text: '₹500', amt: true }],
+    ['वर्दी, साफ दिखावट और सीट बेल्ट', 'ड्राइवर को हमेशा साफ वर्दी में रहना ज़रूरी है। सीट पर बैठते ही सीट बेल्ट लगाना भी अनिवार्य है।', { text: '₹500', amt: true }],
+    ['बस गंदी होना', 'यात्रा शुरू होने से पहले बस अंदर और बाहर से साफ होनी चाहिए।', { text: '₹500', amt: true }],
+    ['ड्राइवर ऐप चालू न होना', "यात्रा शुरू करने से पहले ड्राइवर ऐप खोलना और 'Start Trip' स्वाइप करना ज़रूरी है।", { text: '₹2,000', amt: true }],
+    ['सुबह की शिफ्ट के अलार्म का जवाब न देना', 'सुबह की शिफ्ट का अलार्म ऐप पर आता है। उसकी पुष्टि करना ज़रूरी है।', { text: '₹2,000', amt: true }],
+    ['देर से रिपोर्टिंग या पहले स्टॉप पर देर', 'समय पर रिपोर्ट करना और पहले स्टॉप पर समय पर पहुंचना ज़रूरी है।', { text: '₹2,000', amt: true }],
+    ['बिना बताए अंतिम समय पर गैरहाज़िर', 'पहले से बताए बिना काम पर न आने पर जुर्माना लगेगा।', { text: 'पूरी ट्रिप की कटौती', severe: true }],
+  ], tCols);
+
+  drawPhaseTitle(2, 'यात्रा के दौरान | During Trip Phase');
+  drawTable(['उल्लंघन', 'नियम / अपेक्षा', 'जुर्माना (₹)'], [
+    ['बीच यात्रा में ड्राइवर ऐप बंद करना', 'यात्रा के दौरान ड्राइवर ऐप पूरे समय चालू रहना चाहिए।', { text: '₹500', amt: true }],
+    ['ऐप की सूचना का जवाब न देना', 'AC बढ़ाने या एक मिनट रुकने जैसी सूचनाओं पर ऐप में पुष्टि करना ज़रूरी है।', { text: '₹500', amt: true }],
+    ['यात्री छूट जाना', 'किसी भी यात्री को उसके स्टॉप पर छोड़कर जाना मना है।', { text: '₹500', amt: true }],
+    ['रूट पर बहस करना', 'रूट तय होने के बाद उस पर बहस या आपत्ति नहीं चलेगी।', { text: '₹500', amt: true }],
+    ['ऑपरेशन टीम के साथ सहयोग न करना', 'यात्रा के दौरान ऑफिस और मैनेजमेंट टीम के साथ पूरा सहयोग ज़रूरी है।', { text: '₹1,000', amt: true }],
+    ['बस की खराबी या AC की दिक्कत न बताना', 'कोई भी समस्या जो ट्रिप रोक सकती है, उसे तुरंत मैनेजमेंट को बताना है।', { text: '₹500', amt: true }],
+    ['बाहरी व्यक्ति को बस में बैठाना', 'ड्राई रन या किसी भी ट्रिप में बिना Cityflo टिकट वाले व्यक्ति को बैठाना सख्त मना है।', { text: '₹10,000 (दूसरी बार पर सेवामुक्ति)', severe: true }],
+  ], tCols);
+
+  drawPhaseTitle(3, 'यात्रा खत्म होने पर | End of Trip Phase');
+  drawTable(['उल्लंघन', 'नियम / अपेक्षा', 'जुर्माना (₹)'], [
+    ['ड्राइवर ऐप सही से बंद न करना', 'ऐप बंद करने से पहले ट्रिप को ऐप पर समाप्त करना ज़रूरी है, तभी ट्रिप पूरी मानी जाएगी।', { text: '₹2,000', amt: true }],
+    ['यात्रा के बाद बस गंदी छोड़ना', 'हर यात्रा के बाद बस साफ होनी चाहिए और अगली यात्रा के लिए तैयार होनी चाहिए।', { text: '₹500', amt: true }],
+    ['यात्री का छूटा सामान न लौटाना', 'अगर कोई यात्री सामान भूल जाए, तो मैनेजमेंट को बताकर यात्री को वापस करना ज़रूरी है।', { text: '₹500', amt: true }],
+  ], tCols);
+
+  drawPhaseTitle(4, 'अन्य ज़रूरी बातें | Other Things');
+  drawTable(['उल्लंघन', 'नियम / अपेक्षा', 'जुर्माना (₹)'], [
+    ['अनुशासनहीनता, रैश ड्राइविंग या 2 मिनट से ज़्यादा फोन कॉल', 'साथी ड्राइवर, यात्री या टीम के साथ बुरा बर्ताव, तेज़ और लापरवाह ड्राइविंग, और गाड़ी चलाते समय 2 मिनट से ज़्यादा फोन पर बात करना मना है।', { text: '₹1,000', amt: true }],
+    ['CCTV कैमरे के साथ छेड़छाड़', 'बस में लगे CCTV कैमरे सबकी सुरक्षा के लिए हैं। उन्हें बंद करना, ढकना या नुकसान पहुंचाना सख्त मना है।', { text: '₹5,000 (दूसरी बार पर सेवामुक्ति)', severe: true }],
+    ['नशीली चीज़ साथ रखना या सेवन करना', 'ड्यूटी के दौरान किसी भी नशीली चीज़ का सेवन या अपने साथ रखना सख्त मना है।', { text: 'सेवामुक्ति + ₹10,000', severe: true }],
+  ], tCols);
+
+  // Closing line
+  newPageIfNeeded(36);
+  drawParagraph('आपकी मेहनत और ईमानदारी के लिए धन्यवाद। आइए मिलकर Cityflo को और आगे बढ़ाएं।', { size: 11, bold: true, color: warnTxt });
+  y -= 12;
+
+  // ════════════════════════════════════════════════════════════════════
+  // ── STEP 4 : SIGNATURE BLOCK ─────────────────────────────────────────
+  // ════════════════════════════════════════════════════════════════════
   newPageIfNeeded(240);
-  drawStepBadge('स्टेप 2 : ड्राइवर की जानकारी और हस्ताक्षर');
+  drawStepBadge('स्टेप 4 : ड्राइवर की जानकारी और हस्ताक्षर');
 
   // Signature box with fields
   const now = new Date();
