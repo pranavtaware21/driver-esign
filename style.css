@@ -19,7 +19,21 @@ body {
   min-height: 100vh;
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+  position: relative;
 }
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url('logo.png');
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: min(70vw, 520px) auto;
+  opacity: 0.05;
+  pointer-events: none;
+  z-index: 0;
+}
+.wrap { position: relative; z-index: 1; }
 .wrap { max-width: 760px; margin: 0 auto; padding: 16px; }
 header {
   display: flex; align-items: center; justify-content: space-between;
