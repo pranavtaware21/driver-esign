@@ -263,17 +263,13 @@ h1 { font-size: 20px; font-weight: 700; margin: 0 0 4px; letter-spacing: -0.01em
   flex-shrink: 0;
 }
 .table-wrap {
-  overflow-x: auto;
   border-radius: 8px;
-  border: 1px solid #fed7aa;
   margin-bottom: 14px;
-  background: #ffffff;
 }
 .penalty-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 13px;
-  min-width: 520px;
 }
 .penalty-table thead th {
   background: #ffedd5;
@@ -304,6 +300,58 @@ h1 { font-size: 20px; font-weight: 700; margin: 0 0 4px; letter-spacing: -0.01em
   white-space: normal;
   text-align: center;
   border-radius: 4px;
+}
+
+/* ── Mobile: stacked card layout, no horizontal scroll ─────────────── */
+@media (max-width: 720px) {
+  .penalty-table, .penalty-table tbody, .penalty-table tr, .penalty-table td {
+    display: block;
+    width: 100%;
+  }
+  .penalty-table thead { display: none; }
+  .penalty-table tr {
+    background: #ffffff !important;
+    border: 1px solid #fed7aa;
+    border-left: 4px solid #ea580c;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+  }
+  .penalty-table td {
+    padding: 6px 0;
+    border: none !important;
+    position: relative;
+    font-size: 14px;
+  }
+  .penalty-table td:nth-child(1) {
+    font-weight: 700;
+    color: #9a3412;
+    font-size: 14px;
+    padding-bottom: 4px;
+  }
+  .penalty-table td:nth-child(2) {
+    color: #334155;
+    font-size: 13px;
+    line-height: 1.6;
+    padding: 4px 0 8px;
+    border-top: 1px dashed #fed7aa !important;
+  }
+  .penalty-table td:nth-child(3) {
+    text-align: left !important;
+    font-size: 14px;
+    padding-top: 6px;
+    border-top: 1px dashed #fed7aa !important;
+  }
+  .penalty-table td:nth-child(3)::before {
+    content: 'जुर्माना : ';
+    color: #64748b;
+    font-weight: 500;
+  }
+  .penalty-table .amt.severe {
+    display: inline-block;
+    padding: 4px 10px;
+    margin-top: 2px;
+  }
 }
 .penalty-section .closing {
   margin-top: 18px;
