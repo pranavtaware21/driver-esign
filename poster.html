@@ -2,276 +2,261 @@
 <html lang="hi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cityflo — वेतन वृद्धि</title>
+<title>Cityflo — वेतन वृद्धि पोस्टर</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700;800&family=Tiro+Devanagari+Hindi&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { width: 100%; }
   body {
     font-family: 'Mukta', 'Noto Sans Devanagari', sans-serif;
-    background: #f1f5f9;
+    background: #0f172a;
     min-height: 100vh;
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: center;
-    padding: 16px;
+    padding: 20px;
   }
   .poster {
-    width: 100%;
-    max-width: 720px;
-    aspect-ratio: 4 / 5;
-    background: linear-gradient(160deg, #fef9c3 0%, #fde68a 45%, #fbbf24 100%);
+    width: 1080px;
+    height: 1350px;
+    background: linear-gradient(160deg, #fef9c3 0%, #fde68a 40%, #fbbf24 100%);
     position: relative;
     overflow: hidden;
-    border-radius: 18px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
-    padding: 4.2% 4.8%;
-    display: flex;
-    flex-direction: column;
+    border-radius: 24px;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.4);
+    transform-origin: center;
   }
-  /* Decorative blobs */
+  @media (max-width: 1120px) {
+    .poster { transform: scale(0.65); }
+  }
+  @media (max-width: 720px) {
+    .poster { transform: scale(0.35); }
+  }
+  @media (max-width: 420px) {
+    .poster { transform: scale(0.3); }
+  }
   .deco1, .deco2, .deco3 {
     position: absolute;
     border-radius: 50%;
+    opacity: 0.35;
     filter: blur(2px);
-    pointer-events: none;
   }
-  .deco1 { width: 46%; aspect-ratio: 1; background: #16a34a; opacity: 0.32; top: -14%; right: -14%; }
-  .deco2 { width: 36%; aspect-ratio: 1; background: #ea580c; opacity: 0.22; bottom: -10%; left: -10%; }
-  .deco3 { width: 20%; aspect-ratio: 1; background: #f59e0b; opacity: 0.22; top: 50%; right: 6%; }
-
-  .content { position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; }
-
-  /* Header */
+  .deco1 { width: 500px; height: 500px; background: #16a34a; top: -180px; right: -160px; }
+  .deco2 { width: 380px; height: 380px; background: #ea580c; bottom: -120px; left: -100px; opacity: 0.25; }
+  .deco3 { width: 200px; height: 200px; background: #f59e0b; top: 45%; right: 60px; opacity: 0.2; }
+  .content {
+    position: relative;
+    z-index: 2;
+    padding: 56px 64px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
   .header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 2.5%;
+    margin-bottom: 28px;
   }
   .logo-box {
-    background: rgba(255,255,255,0.9);
-    padding: 2.5% 3.5%;
+    background: rgba(255,255,255,0.85);
+    padding: 14px 22px;
     border-radius: 14px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   }
-  .logo-box img { height: 7vw; max-height: 48px; display: block; }
+  .logo-box img { height: 52px; display: block; }
   .date-tag {
     background: #16a34a;
     color: white;
-    padding: 1.5% 3.2%;
+    padding: 10px 20px;
     border-radius: 999px;
-    font-weight: 800;
-    font-size: clamp(13px, 2.4vw, 18px);
-    letter-spacing: 0.3px;
-    box-shadow: 0 6px 14px rgba(22,163,74,0.4);
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 0.5px;
+    box-shadow: 0 6px 16px rgba(22,163,74,0.35);
   }
-
-  /* Badge */
   .celebrate-badge {
     display: inline-block;
     background: linear-gradient(135deg, #16a34a, #15803d);
     color: white;
-    padding: 1.6% 3.6%;
+    padding: 12px 28px;
     border-radius: 999px;
-    font-weight: 800;
-    font-size: clamp(14px, 2.8vw, 22px);
+    font-weight: 700;
+    font-size: 22px;
     letter-spacing: 0.5px;
-    margin-bottom: 3%;
+    margin-bottom: 20px;
     align-self: flex-start;
     box-shadow: 0 10px 24px rgba(22,163,74,0.45);
   }
-
-  /* Headline */
   h1 {
     font-family: 'Tiro Devanagari Hindi', serif;
-    font-size: clamp(38px, 9vw, 80px);
-    line-height: 1.04;
+    font-size: 96px;
+    line-height: 1.05;
     color: #0f172a;
     font-weight: 700;
+    margin-bottom: 8px;
     letter-spacing: -1px;
-    margin-bottom: 0.4%;
   }
   h1 .highlight {
     color: #166534;
     display: block;
-    font-size: clamp(44px, 10.5vw, 96px);
+    font-size: 108px;
   }
   .subtitle {
-    font-size: clamp(15px, 3vw, 24px);
-    color: #1e293b;
-    font-weight: 600;
-    margin: 1.6% 0 4%;
-    line-height: 1.45;
+    font-size: 30px;
+    color: #334155;
+    font-weight: 500;
+    margin-bottom: 40px;
+    line-height: 1.4;
   }
-
-  /* Cards */
   .cards {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 2.6%;
-    margin-bottom: 3.4%;
+    gap: 22px;
+    margin-bottom: 34px;
   }
   .card {
     background: white;
-    padding: 5% 4.5% 4.5%;
-    border-radius: 16px;
+    padding: 32px 28px;
+    border-radius: 20px;
     position: relative;
-    box-shadow: 0 8px 22px rgba(15,23,42,0.12);
+    box-shadow: 0 12px 30px rgba(15,23,42,0.12);
     border-top: 6px solid #16a34a;
   }
   .card.loyalty { border-top-color: #ea580c; }
   .card-num {
     position: absolute;
-    top: -14px;
-    left: 16px;
+    top: -18px;
+    left: 24px;
     background: #16a34a;
     color: white;
-    width: 38px;
-    height: 38px;
-    border-radius: 10px;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 800;
-    font-size: 20px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    font-size: 22px;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.2);
   }
   .card.loyalty .card-num { background: #ea580c; }
   .card h2 {
-    font-size: clamp(15px, 2.8vw, 22px);
+    font-size: 24px;
     color: #0f172a;
-    margin: 6px 0 8px;
-    font-weight: 800;
-    line-height: 1.25;
+    margin-bottom: 16px;
+    font-weight: 700;
+    margin-top: 8px;
+    line-height: 1.3;
   }
   .amount {
     font-family: 'Mukta', sans-serif;
-    font-size: clamp(40px, 9vw, 72px);
+    font-size: 78px;
     font-weight: 800;
     color: #15803d;
     line-height: 1;
     letter-spacing: -2px;
-    margin: 2% 0 3%;
+    margin: 6px 0 14px;
   }
   .card.loyalty .amount { color: #c2410c; }
-  .amount .rupee { font-size: 0.65em; vertical-align: top; margin-right: 2px; }
+  .amount .rupee { font-size: 52px; vertical-align: top; margin-right: 2px; }
   .card p {
-    font-size: clamp(13px, 2.3vw, 18px);
-    color: #334155;
-    line-height: 1.45;
-    font-weight: 500;
+    font-size: 18px;
+    color: #475569;
+    line-height: 1.5;
   }
   .card .note {
-    margin-top: 8px;
-    padding: 8px 11px;
+    margin-top: 12px;
+    padding: 10px 14px;
     background: #f1f5f9;
-    border-radius: 8px;
-    font-size: clamp(12px, 2.1vw, 16px);
-    color: #0f172a;
-    font-weight: 500;
-    line-height: 1.4;
+    border-radius: 10px;
+    font-size: 16px;
+    color: #334155;
   }
-  .card .note strong { color: #16a34a; }
-  .card.loyalty .note strong { color: #ea580c; }
-
-  /* Example grid */
+  .card .note strong { color: #0f172a; }
   .example {
-    background: rgba(255,255,255,0.82);
-    border-radius: 16px;
-    padding: 3.2% 3.6%;
+    background: rgba(255,255,255,0.75);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 26px 30px;
     border: 2px dashed #16a34a;
-    margin-bottom: 3%;
+    margin-bottom: 30px;
   }
   .example h3 {
-    font-size: clamp(14px, 2.5vw, 20px);
+    font-size: 22px;
     color: #166534;
-    margin-bottom: 2.4%;
-    font-weight: 800;
+    margin-bottom: 12px;
+    font-weight: 700;
   }
   .example-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 2.5%;
+    gap: 12px;
   }
   .year-box {
     background: white;
-    padding: 4% 3%;
-    border-radius: 10px;
+    padding: 14px 16px;
+    border-radius: 12px;
     text-align: center;
   }
   .year-box .yr {
-    font-size: clamp(11px, 1.9vw, 14px);
-    color: #475569;
-    font-weight: 700;
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 600;
     letter-spacing: 0.3px;
     text-transform: uppercase;
   }
   .year-box .val {
-    font-size: clamp(16px, 3.2vw, 24px);
-    font-weight: 800;
+    font-size: 20px;
+    font-weight: 700;
     color: #15803d;
-    margin-top: 3px;
+    margin-top: 4px;
   }
-
-  /* Footer */
   .footer {
     margin-top: auto;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding-top: 3%;
+    padding-top: 20px;
     border-top: 2px solid rgba(0,0,0,0.1);
   }
   .thanks {
     font-family: 'Tiro Devanagari Hindi', serif;
-    font-size: clamp(16px, 3.2vw, 26px);
+    font-size: 28px;
     color: #0f172a;
     font-weight: 700;
-    line-height: 1.2;
   }
   .thanks .accent { color: #15803d; }
   .brand {
-    font-size: clamp(11px, 1.9vw, 15px);
-    color: #334155;
+    font-size: 16px;
+    color: #475569;
     text-align: right;
-    font-weight: 600;
-    line-height: 1.45;
+    font-weight: 500;
+    line-height: 1.4;
   }
-  .brand strong { font-size: 1.15em; color: #0f172a; }
 
-  /* Action bar (below poster, not part of screenshot) */
-  .actions {
+  /* Download hint — only visible on screen, hidden when saving */
+  .hint {
     position: fixed;
-    bottom: 16px;
+    bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
-    display: flex;
-    gap: 8px;
-    z-index: 100;
-  }
-  .actions button {
-    background: #0f172a;
+    background: rgba(15,23,42,0.9);
     color: white;
-    border: none;
     padding: 12px 22px;
     border-radius: 999px;
     font-size: 14px;
-    font-weight: 600;
-    font-family: inherit;
-    cursor: pointer;
+    font-family: sans-serif;
+    z-index: 100;
     box-shadow: 0 8px 20px rgba(0,0,0,0.3);
   }
-  .actions button:hover { background: #1e293b; }
-
   @media print {
-    body { background: white; padding: 0; display: block; }
-    .poster { max-width: 100%; width: 100%; box-shadow: none; border-radius: 0; aspect-ratio: auto; min-height: 100vh; }
-    .actions { display: none; }
-    @page { size: A4 portrait; margin: 0; }
+    body { background: white; padding: 0; }
+    .poster { box-shadow: none; border-radius: 0; transform: none; }
+    .hint { display: none; }
+    @page { size: 1080px 1350px; margin: 0; }
   }
 </style>
 </head>
@@ -296,7 +281,8 @@
         <span class="highlight">₹2,000 तक</span>
       </h1>
       <p class="subtitle">
-        प्यारे ड्राइवर साथियों, आपकी मेहनत के लिए दो बड़ी खुशखबरी
+        Cityflo Mumbai परिवार के प्यारे ड्राइवर साथियों,<br>
+        आपकी मेहनत के लिए दो बड़ी खुशखबरी
       </p>
 
       <div class="cards">
@@ -305,15 +291,15 @@
           <h2>बेस सैलरी में बढ़ोतरी</h2>
           <div class="amount"><span class="rupee">₹</span>1,000</div>
           <p>सभी ड्राइवर साथियों को मिलेगी।</p>
-          <div class="note"><strong>कब से :</strong> अप्रैल 2026</div>
+          <div class="note"><strong>कब से :</strong> अप्रैल 2026 की सैलरी से लागू।</div>
         </div>
 
         <div class="card loyalty">
           <div class="card-num">2</div>
           <h2>लॉयल्टी बढ़ोतरी</h2>
           <div class="amount"><span class="rupee">₹</span>1,000</div>
-          <p>हर पूरे साल के लिए।</p>
-          <div class="note"><strong>शर्त :</strong> छुट्टियाँ 18 दिन से कम</div>
+          <p>एक पूरा साल काम करने पर।</p>
+          <div class="note"><strong>शर्त :</strong> उस साल छुट्टियाँ 18 दिन से कम होनी चाहिए।</div>
         </div>
       </div>
 
@@ -342,31 +328,12 @@
         </div>
         <div class="brand">
           <strong>Cityflo Mumbai</strong><br>
-          आज ही साइन करें
+          Driver Agreement पर साइन करें
         </div>
       </div>
     </div>
   </div>
 
-  <div class="actions">
-    <button onclick="downloadPoster()">📥 Download PNG</button>
-    <button onclick="window.print()">🖨 Print / PDF</button>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <script>
-    async function downloadPoster() {
-      const el = document.getElementById('poster');
-      const canvas = await html2canvas(el, {
-        scale: 3,
-        useCORS: true,
-        backgroundColor: null,
-      });
-      const link = document.createElement('a');
-      link.download = 'Cityflo-Salary-Increment-Poster.png';
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-    }
-  </script>
+  <div class="hint">Screenshot / Print → WhatsApp share ready</div>
 </body>
 </html>
